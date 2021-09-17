@@ -6,27 +6,6 @@ const props = defineProps({
     id: Number
 })
 
-const traits = [
-    "os",
-    "textEditor",
-    "clothing",
-    "language",
-    "industry",
-    "location",
-    "mind",
-    "vibe",
-]
-
-let fileNames = {}
-
-developers.forEach(developer => {
-    traits.forEach(trait => {
-        fileNames[slugify(trait) + '_' + slugify(developer[trait]) + '.svg'] = true
-    })
-})
-
-const filesnamesHtml = Object.keys(fileNames).sort().join("\n")
-
 function slugify(name) {
     return name.toLowerCase().replaceAll(' ', '').replaceAll('&', '').replaceAll('+', '')
 }
@@ -48,12 +27,10 @@ const count = ref(0)
 </script>
 
 <template>
-    <div class="text-center w-full max-w-md">
-        <textarea v-model="filesnamesHtml"></textarea>
+    <div>
+<!--        <h1 class="font-bold text-lg">Developer #{{ props.id }}</h1>-->
 
-        <h1 class="font-bold text-lg">Developer #{{ props.id }}</h1>
-
-        <div class="relative w-full" v-if="layers">
+        <div class="relative w-full overflow-hidden" v-if="layers" style="padding-top: 120%">
             <img
                 v-for="layer in layers"
                 class="absolute top-0 left-0 w-full"
