@@ -1,55 +1,57 @@
-import developers from "../developers";
+import dataDevelopers from '../data/developers.js'
+import dataTraits from '../data/traits.js'
+import {ref, reactive} from 'vue'
 
-export const traits = buildTraitMap()
+export default function usePreviewState() {
+    const developer = ref(1)
+    const traits = reactive({})
 
-function buildTraitMap() {
-    const traitsList = Object.keys(developers[0]).filter(trait => trait !== 'id')
-    let traitsMap = {}
+    function updateDeveloper() {
+        // Loop through all developers until a full trait match is found
+        const _developer = dataDevelopers.find(_developer => {
+            let match = true
 
-    developers.forEach(developer => {
-        traitsList.forEach(trait => {
-            const traitSlug = slugify(trait)
-            const traitValueSlug = slugify(developer[trait])
-
-            if (traitsMap[traitSlug] == null) {
-                traitsMap[traitSlug] = {
-                    slug: traitSlug,
-                    name: titleCase(trait),
-                    values: {}
+            dataTraits.forEach(trait => {
+                if (match && _getTraitSlugFromName(trait, _developer[trait.id]) !== traits[trait.slug]) {
+                    match = false
                 }
-            }
+            })
 
-            if (traitsMap[traitSlug].values[traitValueSlug] == null) {
-                traitsMap[traitSlug].values[traitValueSlug] = {
-                    slug: traitValueSlug,
-                    name: developer[trait]
-                }
-            }
+            return match
         })
-    })
 
+        // Apply developer id. Otherwise reset.
+        developer.value = _developer
+            ? _developer.id
+            : null
+    }
 
-    return Object
-        .values(traitsMap)
-        .sort(by('name'))
-        .map(({ slug, name, values }) => {
-            return {
-                slug,
-                name,
-                values: Object.values(values).sort(by('name'))
-            }
+    function updateTraits() {
+        // Find developer matching id.
+        const _developer = dataDevelopers.find(dev => parseInt(dev.id) === parseInt(developer.value))
+
+        // If found developer from current id, apply trait values. Otherwise reset.
+        dataTraits.forEach(trait => {
+            traits[trait.slug] = _developer
+                ? _getTraitSlugFromName(trait, _developer[trait.id])
+                : null
         })
-}
+    }
 
-function slugify(name) {
-    return name.toLowerCase().replaceAll(' ', '').replaceAll('&', '').replaceAll('+', '')
-}
+    function _getTraitSlugFromName(trait, name) {
+        return trait.values.find(value => value.name === name).slug
+    }
 
-function by(key) {
-    return (a,b) => (a[key] > b[key]) ? 1 : ((b[key] > a[key]) ? -1 : 0)
-}
+    // Initialize
+    dataTraits.forEach(trait => traits[trait.slug] = null)
 
-function titleCase(text) {
-    const result = text.replace(/([A-Z])/g, " $1");
-    return result.charAt(0).toUpperCase() + result.slice(1);
+    updateTraits()
+
+    return {
+        dataTraits,
+        developer,
+        traits,
+        updateDeveloper,
+        updateTraits,
+    }
 }
