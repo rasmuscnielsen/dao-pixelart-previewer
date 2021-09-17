@@ -6,6 +6,31 @@ const props = defineProps({
     id: Number
 })
 
+const traits = [
+    "os",
+    "textEditor",
+    "clothing",
+    "language",
+    "industry",
+    "location",
+    "mind",
+    "vibe",
+]
+
+let fileNames = {}
+
+developers.forEach(developer => {
+    traits.forEach(trait => {
+        fileNames[slugify(trait) + '_' + slugify(developer[trait]) + '.svg'] = true
+    })
+})
+
+const filesnamesHtml = Object.keys(fileNames).sort().join("\n")
+
+function slugify(name) {
+    return name.toLowerCase().replaceAll(' ', '').replaceAll('&', '').replaceAll('+', '')
+}
+
 const layers = computed(() => {
     const developer = developers.find(dev => parseInt(dev.id) === parseInt(props.id))
 
@@ -24,6 +49,8 @@ const count = ref(0)
 
 <template>
     <div class="text-center w-full max-w-md">
+        <textarea v-model="filesnamesHtml"></textarea>
+
         <h1 class="font-bold text-lg">Developer #{{ props.id }}</h1>
 
         <div class="relative w-full" v-if="layers">
