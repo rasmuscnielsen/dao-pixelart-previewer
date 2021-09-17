@@ -1,23 +1,17 @@
 <script setup>
-import developers from "../developers";
+import traits from "../data/traits.js";
 
-const traits = Object.keys(developers[0]).filter(trait => trait !== 'id')
+let list = []
 
-let fileNames = {}
-
-developers.forEach(developer => {
-    traits.forEach(trait => {
-        fileNames[slugify(trait) + '/' + slugify(developer[trait]) + '.svg'] = true
+traits.forEach(trait => {
+    trait.values.forEach(value => {
+        list.push(`${trait.slug}/${value.slug}.svg`)
     })
 })
 
-function slugify(name) {
-    return name.toLowerCase().replaceAll(' ', '').replaceAll('&', '').replaceAll('+', '')
-}
-
-const compiledList = Object.keys(fileNames).sort().join("\n")
+list = list.sort().join("\n")
 </script>
 
 <template>
-    <textarea v-model="compiledList" class="w-full h-48"></textarea>
+    <textarea :value="list" class="w-full h-48"></textarea>
 </template>

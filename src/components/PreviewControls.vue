@@ -1,12 +1,7 @@
 <script setup>
-import {ref} from "vue";
-import traits from "../data/traits.js"
-
 const props = defineProps({
     state: Object
 })
-
-// const developerId = ref(1)
 </script>
 
 <template>
